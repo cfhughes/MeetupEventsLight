@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:gravity="center_vertical"
+  android:orientation="horizontal">
+
+
+  <TextView
+    android:id="@+id/list_event_icon"
+    android:layout_width="64dp"
+    android:layout_height="64dp"
+    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+    android:fontFamily="casual"
+    android:gravity="center_vertical"
+    android:textAlignment="center"
+    android:textAppearance="@style/TextAppearance.AppCompat.Button"
+    android:textSize="22sp"
+    tools:text="A"/>
+
+  <TextView
+    android:id="@+id/list_event_name"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+    android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
+    android:textAppearance="?android:attr/textAppearanceListItemSmall"
+    tools:text="Potluck"/>
+  <TextView
+    android:id="@+id/list_event_rsvp_count"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:text="3"/>
+  <CheckBox
+    android:id="@+id/list_event_rsvp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"/>
+
+</LinearLayout>

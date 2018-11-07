@@ -4,9 +4,17 @@ import com.squareup.moshi.Json;
 
 public class Group {
 
-    private @Json(name = "name")String name;
+    @Json(name = "name")
+    private String name;
+
+    @Json(name = "urlname")
+    private String urlName;
 
     public String getName() {
         return name;
+    }
+
+    public String getUrlName() {
+        return urlName;
     }
 }
