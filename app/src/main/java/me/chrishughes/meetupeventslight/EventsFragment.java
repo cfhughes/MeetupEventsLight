@@ -16,14 +16,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
+import me.chrishughes.meetupeventslight.EventsFragment.EventsAdapter.ViewHolder;
 import me.chrishughes.meetupeventslight.model.Event;
+import me.chrishughes.meetupeventslight.model.RsvpResult;
 import me.chrishughes.meetupeventslight.service.MeetupService.Results;
 import me.chrishughes.meetupeventslight.view.MainPresenter;
 import me.chrishughes.meetupeventslight.view.MainViewInterface;
@@ -36,6 +42,7 @@ public class EventsFragment extends Fragment implements MainViewInterface {
   private EventsAdapter adapter;
   private RecyclerView recyclerView;
   private List<Event> events = new ArrayList<>();
+  private Map<String, ViewHolder> eventViewsById = new HashMap<>();
 
   @Nullable
   @Override
@@ -101,7 +108,15 @@ public class EventsFragment extends Fragment implements MainViewInterface {
     adapter.notifyDataSetChanged();
   }
 
-  private class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder> {
+  @Override
+  public void handleRsvpResult(RsvpResult eventResponse, String id) {
+    ViewHolder viewHolder = eventViewsById.get(id);
+    if (viewHolder.currentEvent.getId().equals(id)) {
+      viewHolder.rsvpBox.setEnabled(true);
+    }
+  }
+
+  class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.ViewHolder> {
 
     @NonNull
     @Override
@@ -114,6 +129,8 @@ public class EventsFragment extends Fragment implements MainViewInterface {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
       final Event event = events.get(i);
+      eventViewsById.put(event.getId(), viewHolder);
+      viewHolder.currentEvent = event;
       viewHolder.name.setText(event.toString());
       viewHolder.rsvpCount
           .setText(String.format(Locale.getDefault(), "RSVPs: %d", event.getRsvpCount()));
@@ -129,6 +146,23 @@ public class EventsFragment extends Fragment implements MainViewInterface {
       viewHolder.eventIcon.setBackground(new ColorDrawable(MaterialColors.colors
           .get(Math.abs(event.getGroup().getName().hashCode()) % MaterialColors.colors.size())));
       viewHolder.eventIcon.setText(String.format("%s", event.getGroup().getName().charAt(0)));
+
+      viewHolder.rsvpBox.setChecked(event.isYesRsvp());
+
+      viewHolder.rsvpBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+          RsvpResult rsvp = new RsvpResult();
+          if (isChecked) {
+            rsvp.setResponse("yes");
+          } else {
+            rsvp.setResponse("no");
+          }
+          mainPresenter.sendRsvp(rsvp, event.getGroup().getUrlName(), event.getId());
+          viewHolder.rsvpBox.setEnabled(false);
+        }
+      });
+      viewHolder.rsvpBox.setEnabled(true);
     }
 
     @Override
@@ -136,12 +170,13 @@ public class EventsFragment extends Fragment implements MainViewInterface {
       return events.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
       TextView eventIcon;
       TextView name;
       TextView rsvpCount;
       CheckBox rsvpBox;
+      Event currentEvent;
 
       public ViewHolder(@NonNull LinearLayout itemView) {
         super(itemView);

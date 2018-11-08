@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity
 
   private static final String CLIENT_ID = "gn7lm2k3ukkk74esivufdn1j6m";
   private static final String CODE = "code";
-  private static final String API_SCOPE = "basic";
+  private static final String API_SCOPE = "rsvp";
   private static final String REDIRECT_URI = "me.chrishughes.meetupeventslight:/oauth2redirect";
   private static final String REDIRECT_URI_ROOT = "me.chrishughes.meetupeventslight";
   private static final String ERROR_CODE = "error";
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity
       HttpUrl authorizeUrl = HttpUrl.parse("https://secure.meetup.com/oauth2/authorize") //
           .newBuilder() //
           .addQueryParameter("client_id", CLIENT_ID)
-          //.addQueryParameter("scope", API_SCOPE)
+          .addQueryParameter("scope", API_SCOPE)
           .addQueryParameter("redirect_uri", REDIRECT_URI)
           .addQueryParameter("response_type", CODE)
           .build();

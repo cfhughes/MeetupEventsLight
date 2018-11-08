@@ -5,8 +5,10 @@ import io.reactivex.Observable;
 import java.util.List;
 import me.chrishughes.meetupeventslight.model.Event;
 import me.chrishughes.meetupeventslight.model.Rsvp;
+import me.chrishughes.meetupeventslight.model.RsvpResult;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -26,6 +28,10 @@ public interface MeetupService {
   @GET("2/rsvps")
   Observable<Results<Rsvp>> getRsvps(@Header("Authorization") String authorization,
       @Query("event_id") String eventId);
+
+  @POST("/{urlname}/events/{id}/rsvps")
+  Observable<RsvpResult> sendRsvp(@Header("Authorization") String authorization,
+      @Path("urlname") String urlName, @Path("id") String id, @Query("response") String response);
 
   class Results<T> {
 
