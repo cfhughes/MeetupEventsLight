@@ -5,7 +5,7 @@
   android:layout_height="match_parent"
   android:layout_margin="16dp"
   android:orientation="vertical"
-  tools:context=".EventFragment">
+  tools:context=".view.EventFragment">
 
   <!-- TODO: Update blank fragment layout -->
   <TextView

@@ -1,9 +1,16 @@
-package me.chrishughes.meetupeventslight;
+package me.chrishughes.meetupeventslight.view;
 
 import static androidx.recyclerview.widget.DividerItemDecoration.VERTICAL;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,13 +19,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.CustomViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import me.chrishughes.meetupeventslight.R;
 import me.chrishughes.meetupeventslight.model.Event;
 import me.chrishughes.meetupeventslight.model.Rsvp;
-import me.chrishughes.meetupeventslight.service.MeetupService.Results;
-import me.chrishughes.meetupeventslight.view.EventPresenter;
-import me.chrishughes.meetupeventslight.view.EventViewInterface;
 import me.chrishughes.meetupeventslight.view.MainViewInterface.TokenProvider;
 
 public class EventFragment extends Fragment implements EventViewInterface {
@@ -63,7 +78,7 @@ public class EventFragment extends Fragment implements EventViewInterface {
     rsvpView.addItemDecoration(itemDecor);
 
     if (rsvps.size() == 0) {
-      eventPresenter.getRsvps(bundle.getString(EVENT_ID));
+      eventPresenter.getRsvps(bundle.getString(URL_NAME), bundle.getString(EVENT_ID));
     }
 
     adapter = new RsvpsAdapter();
@@ -79,8 +94,8 @@ public class EventFragment extends Fragment implements EventViewInterface {
   }
 
   @Override
-  public void displayRsvps(Results<Rsvp> rsvpsResult) {
-    rsvps.addAll(rsvpsResult.getResults());
+  public void displayRsvps(List<Rsvp> rsvpsResult) {
+    rsvps = rsvpsResult;
     adapter.notifyDataSetChanged();
   }
 
@@ -99,6 +114,20 @@ public class EventFragment extends Fragment implements EventViewInterface {
     public void onBindViewHolder(@NonNull EventFragment.RsvpsAdapter.ViewHolder viewHolder, int i) {
       final Rsvp rsvp = rsvps.get(i);
       viewHolder.name.setText(rsvp.getMember().getName());
+      if (rsvp.getMemberPhoto() != null) {
+        Glide.with(getActivity())
+            .load(rsvp.getMemberPhoto().getPhotoLink())
+            .apply(RequestOptions.circleCropTransform())
+            .apply(RequestOptions.placeholderOf(R.drawable.ic_launcher_background))
+            .into(new SimpleTarget<Drawable>(128,128) {
+              @Override
+              public void onResourceReady(@NonNull Drawable resource,
+                  @Nullable Transition<? super Drawable> transition) {
+                /* Set a drawable to the left of textView */
+                viewHolder.name.setCompoundDrawablesWithIntrinsicBounds(resource, null, null, null);
+              }
+            });
+      }
     }
 
     @Override

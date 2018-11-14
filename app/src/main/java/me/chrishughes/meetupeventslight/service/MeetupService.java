@@ -16,10 +16,11 @@ public interface MeetupService {
 
   @GET("2/events")
   Observable<Results<Event>> getRsvpYesEvents(@Header("Authorization") String authorization,
-      @Query("rsvp") String rsvp);
+      @Query("rsvp") String rsvp, @Query("page") int limit);
 
   @GET("2/concierge")
-  Observable<Results<Event>> getUpcomingEvents(@Header("Authorization") String authorization);
+  Observable<Results<Event>> getUpcomingEvents(@Header("Authorization") String authorization,
+      @Query("fields") String fields);
 
   @GET("/{urlname}/events/{id}")
   Observable<Event> getEvent(@Header("Authorization") String authorization,
@@ -27,7 +28,7 @@ public interface MeetupService {
 
   @GET("2/rsvps")
   Observable<Results<Rsvp>> getRsvps(@Header("Authorization") String authorization,
-      @Query("event_id") String eventId);
+      @Query("event_id") String eventId, @Query("rsvp") String rsvp);
 
   @POST("/{urlname}/events/{id}/rsvps")
   Observable<RsvpResult> sendRsvp(@Header("Authorization") String authorization,

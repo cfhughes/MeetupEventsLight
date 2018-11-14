@@ -7,7 +7,7 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:showIn="@layout/app_bar_main"
-        tools:context="me.chrishughes.meetupeventslight.MainActivity">
+        tools:context="me.chrishughes.meetupeventslight.view.MainActivity">
 
     <Button
             android:id="@+id/login"

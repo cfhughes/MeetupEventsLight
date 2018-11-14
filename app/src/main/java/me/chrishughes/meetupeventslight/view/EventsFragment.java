@@ -1,44 +1,39 @@
-package me.chrishughes.meetupeventslight;
+package me.chrishughes.meetupeventslight.view;
 
 import static androidx.recyclerview.widget.DividerItemDecoration.VERTICAL;
-import static me.chrishughes.meetupeventslight.EventFragment.EVENT_ID;
-import static me.chrishughes.meetupeventslight.EventFragment.URL_NAME;
+import static me.chrishughes.meetupeventslight.view.EventFragment.EVENT_ID;
+import static me.chrishughes.meetupeventslight.view.EventFragment.URL_NAME;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import me.chrishughes.meetupeventslight.EventsFragment.EventsAdapter.ViewHolder;
+import me.chrishughes.meetupeventslight.R;
 import me.chrishughes.meetupeventslight.model.Event;
 import me.chrishughes.meetupeventslight.model.RsvpResult;
-import me.chrishughes.meetupeventslight.service.MeetupService.Results;
-import me.chrishughes.meetupeventslight.view.MainPresenter;
-import me.chrishughes.meetupeventslight.view.MainViewInterface;
-import me.chrishughes.meetupeventslight.view.MaterialColors;
+import me.chrishughes.meetupeventslight.view.EventsFragment.EventsAdapter.ViewHolder;
 
-public class EventsFragment extends Fragment implements MainViewInterface {
+public abstract class EventsFragment extends Fragment implements MainViewInterface {
 
   private static Random random = new Random();
-  private MainPresenter mainPresenter;
+  protected MainPresenter mainPresenter;
   private EventsAdapter adapter;
   private RecyclerView recyclerView;
   private List<Event> events = new ArrayList<>();
@@ -59,29 +54,8 @@ public class EventsFragment extends Fragment implements MainViewInterface {
 
     mainPresenter = new MainPresenter(this, ((TokenProvider) getActivity()).getToken());
 
-    if (events.size() == 0) {
-      mainPresenter.getRsvpYesEvents();
-      mainPresenter.getUpcomingEvents();
-    }
-
     adapter = new EventsAdapter();
     recyclerView.setAdapter(adapter);
-    /*MeetupService meetupService = retrofit.create(MeetupService.class);
-    meetupService.getRsvpYesEvents("Bearer " + token, "yes").enqueue(new Callback<Results<Event>>() {
-      @Override
-      public void onResponse(
-          Call<Results<Event>> call, Response<Results<Event>> response) {
-        for (Event e:response.body().getResults()){
-          System.out.println(e);
-        }
-      }
-
-      @Override
-      public void onFailure(Call<MeetupService.Results<Event>> call, Throwable t) {
-        Log.e("Login", "===============New Call==========================");
-        Log.e("Login", "The call getRsvpYesEvents failed", t);
-      }
-    });*/
 
     return recyclerView;
   }
@@ -92,8 +66,8 @@ public class EventsFragment extends Fragment implements MainViewInterface {
   }
 
   @Override
-  public void displayRsvpYesEvents(List<Event> eventsResponse) {
-    events.addAll(0, eventsResponse);
+  public void displayEvents(List<Event> eventsResponse) {
+    events = eventsResponse;
     adapter.notifyDataSetChanged();
   }
 
@@ -103,15 +77,12 @@ public class EventsFragment extends Fragment implements MainViewInterface {
   }
 
   @Override
-  public void displayUpcomingEvents(Results<Event> eventResponse) {
-    events.addAll(eventResponse.getResults());
-    adapter.notifyDataSetChanged();
-  }
-
-  @Override
-  public void handleRsvpResult(RsvpResult eventResponse, String id) {
-    ViewHolder viewHolder = eventViewsById.get(id);
-    if (viewHolder.currentEvent.getId().equals(id)) {
+  public void handleRsvpResult(RsvpResult eventResponse, Event event) {
+    if (eventResponse.getResponse().equals("yes")){
+      event.setYesRsvp(true);
+    }
+    ViewHolder viewHolder = eventViewsById.get(event.getId());
+    if (viewHolder.currentEvent.getId().equals(event.getId())) {
       viewHolder.rsvpBox.setEnabled(true);
     }
   }
@@ -124,6 +95,15 @@ public class EventsFragment extends Fragment implements MainViewInterface {
       LinearLayout v = (LinearLayout) LayoutInflater.from(parent.getContext())
           .inflate(R.layout.event_list_item, parent, false);
       return new ViewHolder(v);
+    }
+
+    @Override
+    public long getItemId(int position) {
+      return events.get(position).getId().hashCode();
+    }
+
+    EventsAdapter(){
+      setHasStableIds(true);
     }
 
     @Override
@@ -149,18 +129,15 @@ public class EventsFragment extends Fragment implements MainViewInterface {
 
       viewHolder.rsvpBox.setChecked(event.isYesRsvp());
 
-      viewHolder.rsvpBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-          RsvpResult rsvp = new RsvpResult();
-          if (isChecked) {
-            rsvp.setResponse("yes");
-          } else {
-            rsvp.setResponse("no");
-          }
-          mainPresenter.sendRsvp(rsvp, event.getGroup().getUrlName(), event.getId());
-          viewHolder.rsvpBox.setEnabled(false);
+      viewHolder.rsvpBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        RsvpResult rsvp = new RsvpResult();
+        if (isChecked) {
+          rsvp.setResponse("yes");
+        } else {
+          rsvp.setResponse("no");
         }
+        mainPresenter.sendRsvp(rsvp, event.getGroup().getUrlName(), event);
+        viewHolder.rsvpBox.setEnabled(false);
       });
       viewHolder.rsvpBox.setEnabled(true);
     }

@@ -6,11 +6,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import java.util.List;
 import me.chrishughes.meetupeventslight.model.Event;
 import me.chrishughes.meetupeventslight.model.MeetupClient;
 import me.chrishughes.meetupeventslight.model.Rsvp;
 import me.chrishughes.meetupeventslight.service.MeetupService;
 import me.chrishughes.meetupeventslight.service.MeetupService.Results;
+import retrofit2.Response;
 
 public class EventPresenter {
 
@@ -27,8 +29,8 @@ public class EventPresenter {
     getEventObservable(urlName, id).subscribeWith(getEventObserver());
   }
 
-  public void getRsvps(String id) {
-    getRsvpsObservable(id).subscribeWith(getRsvpsObserver());
+  public void getRsvps(String urlName, String id) {
+    getRsvpsObservable(urlName, id).subscribeWith(getRsvpsObserver());
   }
 
   private Observable<Event> getEventObservable(String urlName, String id) {
@@ -38,9 +40,9 @@ public class EventPresenter {
         .observeOn(AndroidSchedulers.mainThread());
   }
 
-  private Observable<Results<Rsvp>> getRsvpsObservable(String id) {
+  private Observable<Results<Rsvp>> getRsvpsObservable(String urlName, String id) {
     return MeetupClient.getRetrofit().create(MeetupService.class)
-        .getRsvps("Bearer " + token, id)
+        .getRsvps("Bearer " + token, id, "yes")
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread());
   }
@@ -74,7 +76,8 @@ public class EventPresenter {
       @Override
       public void onNext(@NonNull Results<Rsvp> eventResponse) {
         Log.d(TAG, "OnNext" + eventResponse);
-        evi.displayRsvps(eventResponse);
+        List<Rsvp> results = eventResponse.getResults();
+        evi.displayRsvps(results);
       }
 
       @Override

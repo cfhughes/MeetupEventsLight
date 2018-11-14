@@ -1,5 +1,6 @@
 package me.chrishughes.meetupeventslight.view;
 
+import me.chrishughes.meetupeventslight.model.Event;
 import me.chrishughes.meetupeventslight.model.RsvpResult;
 
 public interface MainPresenterInterface {
@@ -8,5 +9,5 @@ public interface MainPresenterInterface {
 
   void getUpcomingEvents();
 
-  void sendRsvp(RsvpResult rsvp, String urlName, String id);
+  void sendRsvp(RsvpResult rsvp, String urlName, Event event);
 }

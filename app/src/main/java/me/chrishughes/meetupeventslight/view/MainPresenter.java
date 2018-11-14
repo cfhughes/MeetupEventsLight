@@ -10,6 +10,7 @@ import java.util.List;
 import me.chrishughes.meetupeventslight.model.Event;
 import me.chrishughes.meetupeventslight.model.MeetupClient;
 import me.chrishughes.meetupeventslight.model.RsvpResult;
+import me.chrishughes.meetupeventslight.model.Self;
 import me.chrishughes.meetupeventslight.service.MeetupService;
 import me.chrishughes.meetupeventslight.service.MeetupService.Results;
 
@@ -37,20 +38,20 @@ public class MainPresenter implements MainPresenterInterface {
   }
 
   @Override
-  public void sendRsvp(RsvpResult rsvp, String urlName, String id) {
-    getRsvpSendObservable(rsvp, urlName, id).subscribeWith(getRsvpSendObserver(id));
+  public void sendRsvp(RsvpResult rsvp, String urlName, Event id) {
+    getRsvpSendObservable(rsvp, urlName, id.getId()).subscribeWith(getRsvpSendObserver(id));
   }
 
   private Observable<Results<Event>> getUpcomingEventsObservable() {
     return meetupService
-        .getUpcomingEvents("Bearer " + token)
+        .getUpcomingEvents("Bearer " + token, "self")
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread());
   }
 
   private Observable<Results<Event>> getRsvpYesObservable() {
     return meetupService
-        .getRsvpYesEvents("Bearer " + token, "yes")
+        .getRsvpYesEvents("Bearer " + token, "yes", 5)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread());
   }
@@ -73,7 +74,7 @@ public class MainPresenter implements MainPresenterInterface {
         for (int i = 0; i < events.size(); i++) {
           events.get(i).setYesRsvp(true);
         }
-        mvi.displayRsvpYesEvents(events);
+        mvi.displayEvents(events);
       }
 
       @Override
@@ -96,7 +97,16 @@ public class MainPresenter implements MainPresenterInterface {
       @Override
       public void onNext(@NonNull Results<Event> eventResponse) {
         Log.d(TAG, "OnNext" + eventResponse.getResults());
-        mvi.displayUpcomingEvents(eventResponse);
+        List<Event> events = eventResponse.getResults();
+        for (int i = 0; i < events.size(); i++) {
+          Self self = events.get(i).getSelf();
+          if (self != null) {
+            RsvpResult rsvp = self.getRsvp();
+            if (rsvp != null && rsvp.getResponse().equals("yes"))
+              events.get(i).setYesRsvp(true);
+          }
+        }
+        mvi.displayEvents(events);
       }
 
       @Override
@@ -113,13 +123,13 @@ public class MainPresenter implements MainPresenterInterface {
     };
   }
 
-  public DisposableObserver<RsvpResult> getRsvpSendObserver(String id) {
+  public DisposableObserver<RsvpResult> getRsvpSendObserver(Event event) {
     return new DisposableObserver<RsvpResult>() {
 
       @Override
       public void onNext(@NonNull RsvpResult eventResponse) {
         Log.d(TAG, "OnNext" + eventResponse);
-        mvi.handleRsvpResult(eventResponse, id);
+        mvi.handleRsvpResult(eventResponse, event);
       }
 
       @Override

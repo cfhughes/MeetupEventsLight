@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "319404104280",
+    "firebase_url": "https://meetupeventslite.firebaseio.com",
+    "project_id": "meetupeventslite",
+    "storage_bucket": "meetupeventslite.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319404104280:android:02fbe3be1019304a",
+        "android_client_info": {
+          "package_name": "me.chrishughes.meetupeventslight"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "319404104280-5qimn848f4co5mvh7i48h8aoiuvqn4l1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_Mbi7j6Fbxyai0KhboUCyv7PRCbPq3Mg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

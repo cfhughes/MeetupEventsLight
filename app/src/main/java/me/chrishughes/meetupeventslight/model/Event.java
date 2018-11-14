@@ -1,6 +1,7 @@
 package me.chrishughes.meetupeventslight.model;
 
 import com.squareup.moshi.Json;
+import java.util.Objects;
 
 public class Event {
 
@@ -15,6 +16,9 @@ public class Event {
 
     @Json(name = "yes_rsvp_count")
     private int rsvpCount;
+
+    @Json(name = "self")
+    private Self self;
 
     private boolean yesRsvp;
 
@@ -41,5 +45,27 @@ public class Event {
 
     public String getId() {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Event event = (Event) o;
+        return Objects.equals(id, event.id);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id);
+    }
+
+    public Self getSelf() {
+        return self;
     }
 }
